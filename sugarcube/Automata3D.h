@@ -28,7 +28,7 @@ public:
 	void randomize(ivec3 clusterSize, unsigned int seed = 0);
 	void solid(ivec3 clusterSize);
 	void draw();
-	void update();
+	void step();
 
 	int eL, eU, fL, fU;
 	std::vector<bool> cells;

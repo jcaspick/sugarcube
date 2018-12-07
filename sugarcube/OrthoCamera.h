@@ -11,7 +11,7 @@ using vec2 = glm::vec2;
 class OrthoCamera {
 	
 public:
-	OrthoCamera(float screenWidth, float screenHeight, GLFWwindow* window);
+	OrthoCamera(GLFWwindow* window, float screenWidth, float screenHeight);
 	void handleMouse();
 
 	mat4 getViewMatrix();

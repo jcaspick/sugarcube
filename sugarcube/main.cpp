@@ -95,34 +95,34 @@ int main() {
 	voxels.solid(startSize);
 
 	// camera
-	OrthoCamera cam(800.0f, 600.0f, window);
+	OrthoCamera cam(window, 800.0f, 600.0f);
 
 	// event loop
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
-
-		// start imgui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		drawGui(voxels, cam);
 		cam.handleMouse();
-
-		glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float currentTime = glfwGetTime();
 		elapsed += currentTime - lastFrame;
 		lastFrame = currentTime;
 		if (elapsed > (1.0f / animationSpeed)) {
 			elapsed -= 1.0f / animationSpeed;
-			if (play) voxels.update();
+			if (play) voxels.step();
 		}
 
+		glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// draw scene
 		drawScene(voxelShader, cam);
 
+		// start imgui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		// draw imgui
+		drawGui(voxels, cam);
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -148,7 +148,7 @@ void drawGui(Automata3D& automata, OrthoCamera& cam) {
 	ImGui::Checkbox("play", &play);
 	ImGui::InputFloat("animation speed", &animationSpeed, 0.5f, 1.0f);
 	if (ImGui::Button("step forward")) {
-		automata.update();
+		automata.step();
 	}
 	ImGui::InputFloat("random seed", &randomSeed, 0.1f, 1.0f);
 	ImGui::InputInt3("start size", &startSize.x, 1.0f);

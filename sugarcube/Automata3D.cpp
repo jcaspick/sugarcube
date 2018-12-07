@@ -62,7 +62,7 @@ void Automata3D::draw() {
 	glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, blocks.size());
 }
 
-void Automata3D::update() {
+void Automata3D::step() {
 	std::vector<bool> nextFrame(size.x * size.y * size.z, false);
 
 	for (int x = 0; x < size.x; x++) {

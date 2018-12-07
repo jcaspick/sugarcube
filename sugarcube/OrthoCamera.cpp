@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-OrthoCamera::OrthoCamera(float screenWidth, float screenHeight, GLFWwindow* window) :
+OrthoCamera::OrthoCamera(GLFWwindow* window, float screenWidth, float screenHeight) :
 	window(window),
 	screenWidth(screenWidth),
 	screenHeight(screenHeight),

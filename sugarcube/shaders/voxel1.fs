@@ -3,6 +3,7 @@ out vec4 fragColor;
 
 in vec3 vNormal;
 in vec3 clipSpacePos;
+in float vDistance;
 
 uniform float rampScale;
 uniform float rampOffset;
@@ -11,5 +12,6 @@ uniform vec4 farColor;
 
 void main() {
 	float t = (clipSpacePos.z * rampScale + rampOffset);
-	fragColor = mix(nearColor, farColor, t);
+	//fragColor = mix(nearColor, farColor, t);
+	fragColor = mix(farColor, nearColor, vDistance * 0.05f);
 }

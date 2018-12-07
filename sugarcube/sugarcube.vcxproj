@@ -134,6 +134,7 @@
     <ClCompile Include="OrthoCamera.cpp" />
     <ClCompile Include="PPM_Exporter.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Sugarcube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automata3D.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="OrthoCamera.h" />
     <ClInclude Include="PPM_Exporter.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sugarcube.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\voxel1.fs" />
