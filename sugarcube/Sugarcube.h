@@ -23,31 +23,35 @@ using mat4 = glm::mat4;
 class Sugarcube {
 
 public:
-	Sugarcube(GLFWwindow* window, float screenWidth, float screenHeight);
+	Sugarcube(float screenWidth, float screenHeight);
+	void initialize();
 	void update(float dt);
 	void draw();
+
+	OrthoCamera* camera;
 
 private:
 	void drawScene();
 	void drawGui();
 
+	vec2 screen;
+
 	float elapsed;
 	float playSpeed;
+	bool playing;
 
 	vec4 bgColor;
+	int shaderMode;
 	vec4 nearColor;
 	vec4 farColor;
 	vec4 innerColor;
 	vec4 outerColor;
 	float originRampScale;
-	float originRampOffset;
 	float cameraRampScale;
 	float cameraRampOffset;
 
-	GLFWwindow* window;
 	Shader voxelShader;
 	Automata3D simulation;
-	OrthoCamera camera;
 	ObjExporter objExporter;
 	PPM_Exporter imageExporter;
 };

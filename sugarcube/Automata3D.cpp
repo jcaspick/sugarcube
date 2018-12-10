@@ -6,55 +6,10 @@
 Automata3D::Automata3D(ivec3 size, int eL, int eU, int fL, int fU) :
 	cells(size.x * size.y * size.z, 0),
 	eL(eL), eU(eU), fL(fL), fU(fU),
-	size(size)
+	size(size),
+	generation(1)
 {
 	srand(time(NULL));
-}
-
-void Automata3D::randomize(ivec3 clusterSize, unsigned int seed) {
-	if (clusterSize.x > size.x ||
-		clusterSize.y > size.y ||
-		clusterSize.z > size.z) return;
-
-	if (seed != 0) srand(seed);
-	std::fill(cells.begin(), cells.end(), false);
-
-	ivec3 offset(
-		(size.x - clusterSize.x) * 0.5f,
-		(size.y - clusterSize.y) * 0.5f,
-		(size.z - clusterSize.z) * 0.5f);
-
-	for (int x = offset.x; x < size.x - offset.x; x++) {
-		for (int y = offset.y; y < size.y - offset.y; y++) {
-			for (int z = offset.z; z < size.y - offset.z; z++) {
-				cells[z * size.x * size.y + y * size.x + x] = rand() % 2;
-			}
-		}
-	}
-
-	rebuildInstanceArray();
-}
-
-void Automata3D::solid(ivec3 clusterSize) {
-	if (clusterSize.x > size.x ||
-		clusterSize.y > size.y ||
-		clusterSize.z > size.z) return;
-
-	std::fill(cells.begin(), cells.end(), false);
-	ivec3 offset(
-		(size.x - clusterSize.x) * 0.5f,
-		(size.y - clusterSize.y) * 0.5f,
-		(size.z - clusterSize.z) * 0.5f);
-
-	for (int x = offset.x; x < size.x - offset.x; x++) {
-		for (int y = offset.y; y < size.y - offset.y; y++) {
-			for (int z = offset.z; z < size.z - offset.z; z++) {
-				cells[z * size.x * size.y + y * size.x + x] = true;
-			}
-		}
-	}
-
-	rebuildInstanceArray();
 }
 
 void Automata3D::draw() {
@@ -84,6 +39,7 @@ void Automata3D::step() {
 	}
 
 	cells = nextFrame;
+	generation++;
 	rebuildInstanceArray();
 }
 
@@ -103,6 +59,99 @@ int Automata3D::countNeighbors(int x, int y, int z) {
 		}
 	}
 	return count;
+}
+
+void Automata3D::resize(ivec3 newSize) {
+	size = newSize;
+	cells.resize(newSize.x * newSize.y * newSize.z, false);
+}
+
+void Automata3D::createBox(ivec3 clusterSize) {
+	if (clusterSize.x > size.x ||
+		clusterSize.y > size.y ||
+		clusterSize.z > size.z) return;
+
+	std::fill(cells.begin(), cells.end(), false);
+	ivec3 offset(
+		(size.x - clusterSize.x) * 0.5f,
+		(size.y - clusterSize.y) * 0.5f,
+		(size.z - clusterSize.z) * 0.5f);
+
+	for (int x = offset.x; x < size.x - offset.x; x++) {
+		for (int y = offset.y; y < size.y - offset.y; y++) {
+			for (int z = offset.z; z < size.z - offset.z; z++) {
+				cells[z * size.x * size.y + y * size.x + x] = true;
+			}
+		}
+	}
+
+	generation = 1;
+	rebuildInstanceArray();
+}
+
+void Automata3D::createCross(int thickness, bool omitX, bool omitY, bool omitZ) {
+	std::fill(cells.begin(), cells.end(), false);
+
+	for (int x = 0; x < size.x; x++) {
+		for (int y = 0; y < size.y; y++) {
+			for (int z = 0; z < size.z; z++) {
+				int idx = z * size.x * size.y + y * size.x + x;
+				float t = (float)thickness * 0.5f;
+				bool cX = x + t >= ((float)size.x - 1) * 0.5f && x - t <= ((float)size.x - 1) * 0.5f;
+				bool cY = y + t >= ((float)size.y - 1) * 0.5f && y - t <= ((float)size.y - 1) * 0.5f;
+				bool cZ = z + t >= ((float)size.z - 1) * 0.5f && z - t <= ((float)size.z - 1) * 0.5f;
+				if (!omitZ && cX && cY) cells[idx] = true;
+				if (!omitY && cX && cZ) cells[idx] = true;
+				if (!omitX && cY && cZ) cells[idx] = true;
+			}
+		}
+	}
+
+	generation = 1;
+	rebuildInstanceArray();
+}
+
+void Automata3D::createCorners(int thickness) {
+	std::fill(cells.begin(), cells.end(), false);
+
+	for (int x = 0; x < size.x; x++) {
+		for (int y = 0; y < size.y; y++) {
+			for (int z = 0; z < size.z; z++) {
+				int idx = z * size.x * size.y + y * size.x + x;
+				bool cX = x < thickness || x >= size.x - thickness;
+				bool cY = y < thickness || y >= size.y - thickness;
+				bool cZ = z < thickness || z >= size.z - thickness;
+				if (cX && cY && cZ) cells[idx] = true;
+			}
+		}
+	}
+
+	generation = 1;
+	rebuildInstanceArray();
+}
+
+void Automata3D::createNoise(ivec3 clusterSize) {
+	if (clusterSize.x > size.x ||
+		clusterSize.y > size.y ||
+		clusterSize.z > size.z) return;
+
+	std::fill(cells.begin(), cells.end(), false);
+
+	ivec3 offset(
+		(size.x - clusterSize.x) * 0.5f,
+		(size.y - clusterSize.y) * 0.5f,
+		(size.z - clusterSize.z) * 0.5f);
+
+	for (int x = offset.x; x < size.x - offset.x; x++) {
+		for (int y = offset.y; y < size.y - offset.y; y++) {
+			for (int z = offset.z; z < size.y - offset.z; z++) {
+				cells[z * size.x * size.y + y * size.x + x] = rand() % 2;
+			}
+		}
+	}
+
+	generation = 1;
+	rebuildInstanceArray();
 }
 
 void Automata3D::rebuildInstanceArray() {
@@ -178,3 +227,6 @@ void Automata3D::initRenderData() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(GLuint), &cubeIndices, GL_STATIC_DRAW);
 }
+
+int Automata3D::getGeneration() { return generation; }
+ivec3 Automata3D::getSize() { return size; }

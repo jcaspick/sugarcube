@@ -25,19 +25,27 @@ public:
 public:
 	Automata3D(ivec3 size, int eL, int eU, int fL, int fU);
 	void initRenderData();
-	void randomize(ivec3 clusterSize, unsigned int seed = 0);
-	void solid(ivec3 clusterSize);
 	void draw();
 	void step();
+
+	void resize(ivec3 newSize);
+	void createBox(ivec3 clusterSize);
+	void createCross(int thickness, bool omitX = false, 
+		bool omitY = false, bool omitZ = false);
+	void createCorners(int thickness);
+	void createNoise(ivec3 clusterSize);
+	int getGeneration();
+	ivec3 getSize();
 
 	int eL, eU, fL, fU;
 	std::vector<bool> cells;
 	std::vector<vec3> blocks;
-	vec3 size;
 
 private:
 	void rebuildInstanceArray();
 	int countNeighbors(int x, int y, int z);
 
 	GLuint vao, vbo, ebo, ibo;
+	ivec3 size;
+	int generation;
 };

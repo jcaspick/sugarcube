@@ -1,24 +1,44 @@
 #include "Sugarcube.h"
+#include <iostream>
 
-Sugarcube::Sugarcube(GLFWwindow* window, float screenWidth, float screenHeight) :
-	window(window),
+Sugarcube::Sugarcube(float screenWidth, float screenHeight) :
+	screen(screenWidth, screenHeight),
 	simulation(ivec3(16), 4, 5, 2, 6),
-	camera(window, screenWidth, screenHeight),
+	camera(nullptr),
 	imageExporter(1024, 1024),
 	elapsed(0),
 	playSpeed(2.5f),
-	bgColor(0)
+	bgColor(vec4(0.0f)),
+	shaderMode(0),
+	cameraRampScale(2.0f),
+	cameraRampOffset(0.5f),
+	originRampScale(13.86f),
+	nearColor(vec4(1.0f)),
+	farColor(vec4(0.0f)),
+	innerColor(vec4(0.5f)),
+	outerColor(vec4(1.0f)),
+	playing(false)
 {}
 
+void Sugarcube::initialize() {
+	// load shader
+	voxelShader.loadFromFile("shaders/voxel1.vs", "shaders/voxel1.fs");
+	voxelShader.use();
+
+	// initialize simulation
+	simulation.initRenderData();
+	simulation.createBox(ivec3(6));
+
+	// initialize image exporter
+	imageExporter.initialize();
+}
+
 void Sugarcube::update(float dt) {
-	// time step
 	elapsed += dt;
 	if (elapsed > 1.0f / playSpeed) {
-		simulation.step();
+		elapsed -= (1.0f / playSpeed);
+		if (playing) simulation.step();
 	}
-
-	// handle input
-	camera.handleMouse();
 }
 
 void Sugarcube::draw() {
@@ -30,13 +50,18 @@ void Sugarcube::draw() {
 }
 
 void Sugarcube::drawScene() {
-	voxelShader.setFloat("rampScale", cameraRampScale);
-	voxelShader.setFloat("rampOffset", cameraRampOffset);
 	voxelShader.setVec4("nearColor", nearColor);
 	voxelShader.setVec4("farColor", farColor);
+	voxelShader.setVec4("innerColor", innerColor);
+	voxelShader.setVec4("outerColor", outerColor);
+	voxelShader.setFloat("cameraRampScale", cameraRampScale);
+	voxelShader.setFloat("cameraRampOffset", cameraRampOffset);
+	voxelShader.setFloat("originRampScale", originRampScale);
+	voxelShader.setFloat("rampMode", static_cast<float>(shaderMode));
+	
+	voxelShader.setMat4("view", camera->getViewMatrix());
+	voxelShader.setMat4("projection", camera->getProjectionMatrix());
 
-	voxelShader.setMat4("view", camera.getViewMatrix());
-	voxelShader.setMat4("projection", camera.getProjectionMatrix());
 	simulation.draw();
 }
 
@@ -46,7 +71,128 @@ void Sugarcube::drawGui() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	// draw gui
+	bool showOverlay = true;
+
+	// current frame information and play/step controls
+	ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+	if (ImGui::Begin("Info", &showOverlay, ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize)) {
+		ImGui::Text("Generation: %d", simulation.getGeneration());
+		ImGui::Text("Rule: %d/%d/%d/%d", simulation.eL, simulation.eU, 
+			simulation.fL, simulation.fU);
+		ImGui::Text("Size: %dx%dx%d", simulation.getSize().x, 
+			simulation.getSize().y, simulation.getSize().z);
+		if (ImGui::Button(playing ? "Pause" : "Play")) {
+			playing = !playing;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Step")) simulation.step();
+	}
+	ImGui::End();
+
+	// sidebar
+	ImGui::SetNextWindowPos(ImVec2(screen.y, 0), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+	if (ImGui::Begin("Controls")) {
+		// simulation tab
+		if (ImGui::CollapsingHeader("Simulation")) {
+			ImGui::Text("Starting Shape");
+			static int startShape = 0;
+			ImGui::RadioButton("Box", &startShape, 0);
+			ImGui::RadioButton("Cross", &startShape, 1);
+			ImGui::RadioButton("Corners", &startShape, 2);
+			ImGui::RadioButton("Noise", &startShape, 3);
+
+			ImGui::Text("Shape Parameters");
+			static ivec3 boxSize = ivec3(2);
+			static int crossThickness = 2;
+			static bool omitX = false;
+			static bool omitY = false;
+			static bool omitZ = false;
+			static int cornerThickness = 2;
+			static ivec3 noiseAreaSize = ivec3(8);
+
+			if (startShape == 0) {
+				ImGui::InputInt3("Box Size", &boxSize.x);
+			}
+			else if (startShape == 1) {
+				ImGui::InputInt("Cross Thickness", &crossThickness);
+				ImGui::Checkbox("Omit X", &omitX);
+				ImGui::Checkbox("Omit Y", &omitY);
+				ImGui::Checkbox("Omit Z", &omitZ);
+			}
+			else if (startShape == 2) {
+				ImGui::InputInt("Corner Thickness", &cornerThickness);
+			}
+			else if (startShape == 3) {
+				ImGui::InputInt3("Area Size", &noiseAreaSize.x);
+			}
+
+			static int eL = 4;
+			static int eU = 5;
+			static int fL = 2;
+			static int fU = 6;
+
+			ImGui::Text("Common Parameters");
+			static ivec3 simulationSize = ivec3(16);
+			ImGui::InputInt3("Simulation Size", &simulationSize.x);
+			ImGui::SliderInt("eL", &eL, 0, 26);
+			ImGui::SliderInt("eU", &eU, 0, 26);
+			ImGui::SliderInt("fL", &fL, 0, 26);
+			ImGui::SliderInt("fU", &fU, 0, 26);
+
+			if (ImGui::Button("Generate", ImVec2(ImGui::GetContentRegionAvailWidth(), 30))) {
+				simulation.resize(simulationSize);
+				originRampScale = glm::length(static_cast<vec3>(simulationSize)) * 0.5f;
+				simulation.eL = eL;
+				simulation.eU = eU;
+				simulation.fL = fL;
+				simulation.fU = fU;
+				if (startShape == 0) simulation.createBox(boxSize);
+				if (startShape == 1) simulation.createCross(crossThickness, omitX, omitY, omitZ);
+				if (startShape == 2) simulation.createCorners(cornerThickness);
+				if (startShape == 3) simulation.createNoise(noiseAreaSize);
+			}
+		}
+
+		// shader tab
+		if (ImGui::CollapsingHeader("Shader")) {
+			ImGui::ColorEdit3("BG Color", &bgColor.r);
+
+			ImGui::Combo("Shader Mode", &shaderMode, "Distance from origin\0Distance from camera");
+
+			ImGui::Text("Origin Ramp");
+			ImGui::ColorEdit3("Inner Color", &innerColor.r);
+			ImGui::ColorEdit3("Outer Color", &outerColor.r);
+
+			ImGui::Text("Camera Distance Ramp");
+			ImGui::ColorEdit3("Near Color", &nearColor.r);
+			ImGui::ColorEdit3("Far Color", &farColor.r);
+		}
+
+		// camera tab
+		if (ImGui::CollapsingHeader("Camera")) {
+			if (ImGui::Button("Isometric View")) {
+				camera->setAzimuth(45);
+				camera->setAltitude(35.264);
+			}
+		}
+
+		// export tab
+		if (ImGui::CollapsingHeader("Export")) {
+			if (ImGui::Button("Export Image")) {
+				imageExporter.beginCapture();
+				camera->setSize(1024, 1024);
+				drawScene();
+				imageExporter.saveImage();
+				camera->setSize(screen.y, screen.y);
+			}
+			if (ImGui::Button("Export OBJ")) {
+				objExporter.load(simulation.cells, simulation.getSize());
+				objExporter.exportObj();
+			}
+		}
+	}
+	ImGui::End();
 
 	// end imgui frame
 	ImGui::Render();
