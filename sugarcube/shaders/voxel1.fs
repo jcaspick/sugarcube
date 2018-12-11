@@ -16,11 +16,11 @@ uniform float originRampOffset;
 uniform float rampMode;
 
 void main() {
-	float oMix = clipSpacePos.z * (1 / cameraRampScale) + cameraRampOffset;
-	float cMix = vDistance * (1 / originRampScale) + originRampOffset;
+	float mixO = vDistance * (1 / originRampScale) + originRampOffset;
+	float mixC = clipSpacePos.z * (1 / cameraRampScale) + cameraRampOffset;
 
-	vec4 originRamp = mix(innerColor, outerColor, cMix);
-	vec4 cameraRamp = mix(nearColor, farColor, oMix);
+	vec4 originRamp = mix(innerColor, outerColor, mixO);
+	vec4 cameraRamp = mix(nearColor, farColor, mixC);
 
 	fragColor = mix(originRamp, cameraRamp, rampMode);
 }
