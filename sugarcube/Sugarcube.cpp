@@ -74,6 +74,7 @@ void Sugarcube::drawGui() {
 	ImGui::NewFrame();
 
 	bool showOverlay = true;
+	bool showSidebar = true;
 
 	// current frame information and play/step controls
 	ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
@@ -94,7 +95,10 @@ void Sugarcube::drawGui() {
 
 	// sidebar
 	ImGui::SetNextWindowPos(ImVec2(screen.y, 0), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-	if (ImGui::Begin("Controls")) {
+	ImGui::SetNextWindowSize(ImVec2(screen.x - screen.y, screen.y));
+	if (ImGui::Begin("Controls", &showSidebar, 
+		ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar))
+	{
 		// simulation tab
 		if (ImGui::CollapsingHeader("Simulation")) {
 			ImGui::Text("Starting Shape");
