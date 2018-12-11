@@ -9,12 +9,13 @@ out vec3 clipSpacePos;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform int smoothLight;
 
 void main() {
 	vec4 vPos = vec4(pos + offset, 1);
 	vNormal = normal;
-	vDistance = length(pos + offset);
+	vDistance = length(pos * smoothLight + offset);
+	clipSpacePos = (projection * view * vec4(pos * smoothLight + offset, 1)).xyz;
 
 	gl_Position = projection * view * vPos;
-	clipSpacePos = gl_Position.xyz;
 }

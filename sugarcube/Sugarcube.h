@@ -43,6 +43,7 @@ private:
 
 	vec4 bgColor;
 	int shaderMode;
+	int smoothLight;
 	vec4 nearColor;
 	vec4 farColor;
 	vec4 innerColor;

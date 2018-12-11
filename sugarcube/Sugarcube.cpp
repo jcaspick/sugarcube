@@ -10,6 +10,7 @@ Sugarcube::Sugarcube(float screenWidth, float screenHeight) :
 	playSpeed(2.5f),
 	bgColor(vec4(0.0f)),
 	shaderMode(0),
+	smoothLight(1),
 	cameraRampScale(0.5f),
 	cameraRampOffset(0.5f),
 	originRampScale(13.86f),
@@ -60,6 +61,7 @@ void Sugarcube::drawScene() {
 	voxelShader.setFloat("originRampScale", originRampScale);
 	voxelShader.setFloat("originRampOffset", originRampOffset);
 	voxelShader.setFloat("rampMode", static_cast<float>(shaderMode));
+	voxelShader.setInt("smoothLight", smoothLight);
 	
 	voxelShader.setMat4("view", camera->getViewMatrix());
 	voxelShader.setMat4("projection", camera->getProjectionMatrix());
@@ -165,18 +167,22 @@ void Sugarcube::drawGui() {
 			ImGui::ColorEdit3("BG Color", &bgColor.r);
 
 			ImGui::Combo("Shader Mode", &shaderMode, "Distance from origin\0Distance from camera");
+			ImGui::Combo("Ramp Mode", &smoothLight, "Block distance\0Vertex distance");
 
-			ImGui::Text("Origin Ramp");
-			ImGui::ColorEdit3("Inner Color", &innerColor.r);
-			ImGui::ColorEdit3("Outer Color", &outerColor.r);
-			ImGui::SliderFloat("Scale##originRamp", &originRampScale, 0.0f, 50.0f);
-			ImGui::SliderFloat("Offset##originRamp", &originRampOffset, -5.0f, 5.0f);
-
-			ImGui::Text("Camera Distance Ramp");
-			ImGui::ColorEdit3("Near Color", &nearColor.r);
-			ImGui::ColorEdit3("Far Color", &farColor.r);
-			ImGui::SliderFloat("Scale##cameraRamp", &cameraRampScale, 0.0f, 5.0f);
-			ImGui::SliderFloat("Offset##cameraRamp", &cameraRampOffset, -5.0f, 5.0f);
+			if (shaderMode == 0) {
+				ImGui::Text("Origin Ramp");
+				ImGui::ColorEdit3("Inner Color", &innerColor.r);
+				ImGui::ColorEdit3("Outer Color", &outerColor.r);
+				ImGui::SliderFloat("Scale##originRamp", &originRampScale, 0.0f, 50.0f);
+				ImGui::SliderFloat("Offset##originRamp", &originRampOffset, -5.0f, 5.0f);
+			}
+			if (shaderMode == 1) {
+				ImGui::Text("Camera Distance Ramp");
+				ImGui::ColorEdit3("Near Color", &nearColor.r);
+				ImGui::ColorEdit3("Far Color", &farColor.r);
+				ImGui::SliderFloat("Scale##cameraRamp", &cameraRampScale, 0.0f, 5.0f);
+				ImGui::SliderFloat("Offset##cameraRamp", &cameraRampOffset, -5.0f, 5.0f);
+			}
 		}
 
 		// camera tab
