@@ -24,10 +24,11 @@ using mat4 = glm::mat4;
 class Sugarcube {
 
 public:
-	Sugarcube(float screenWidth, float screenHeight);
+	Sugarcube(float screenWidth, float screenHeight, float sidebarWidth);
 	void initialize();
 	void update(float dt);
 	void draw();
+	void resize(float width, float height);
 
 	OrthoCamera* camera;
 
@@ -36,6 +37,7 @@ private:
 	void drawGui();
 
 	vec2 screen;
+	float sidebarWidth;
 
 	float elapsed;
 	float playSpeed;

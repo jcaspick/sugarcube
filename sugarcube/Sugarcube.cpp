@@ -1,8 +1,9 @@
 #include "Sugarcube.h"
 #include <iostream>
 
-Sugarcube::Sugarcube(float screenWidth, float screenHeight) :
+Sugarcube::Sugarcube(float screenWidth, float screenHeight, float sidebarWidth) :
 	screen(screenWidth, screenHeight),
+	sidebarWidth(sidebarWidth),
 	simulation(ivec3(16), 4, 5, 2, 6),
 	camera(nullptr),
 	imageExporter(1024, 1024),
@@ -51,6 +52,10 @@ void Sugarcube::draw() {
 	drawGui();
 }
 
+void Sugarcube::resize(float width, float height) {
+	screen = { width, height };
+}
+
 void Sugarcube::drawScene() {
 	voxelShader.setVec4("nearColor", nearColor);
 	voxelShader.setVec4("farColor", farColor);
@@ -96,8 +101,9 @@ void Sugarcube::drawGui() {
 	ImGui::End();
 
 	// sidebar
-	ImGui::SetNextWindowPos(ImVec2(screen.y, 0), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-	ImGui::SetNextWindowSize(ImVec2(screen.x - screen.y, screen.y));
+	ImGui::SetNextWindowPos(ImVec2(screen.x - sidebarWidth, 0), 
+		ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+	ImGui::SetNextWindowSize(ImVec2(sidebarWidth, screen.y));
 	if (ImGui::Begin("Controls", &showSidebar, 
 		ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar))
 	{
@@ -204,7 +210,7 @@ void Sugarcube::drawGui() {
 				camera->setSize(imageSize.x, imageSize.y);
 				drawScene();
 				imageExporter.saveImage();
-				camera->setSize(screen.y, screen.y);
+				camera->setSize(screen.x - sidebarWidth, screen.y);
 			}
 			if (ImGui::Button("Export OBJ")) {
 				objExporter.load(simulation.cells, simulation.getSize());

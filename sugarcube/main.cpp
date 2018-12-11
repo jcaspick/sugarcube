@@ -23,11 +23,14 @@ using mat4 = glm::mat4;
 
 const GLsizei SCREEN_WIDTH = 1100;
 const GLsizei SCREEN_HEIGHT = 800;
+const float SIDEBAR_WIDTH = 300.0f;
 
 float lastFrame;
 float elapsed;
 
-Sugarcube sugarcube(SCREEN_WIDTH, SCREEN_HEIGHT);
+Sugarcube sugarcube(SCREEN_WIDTH, SCREEN_HEIGHT, SIDEBAR_WIDTH);
+
+void resizeCallback(GLFWwindow* window, int width, int height);
 
 int main() {
 	// initialize GLFW
@@ -52,8 +55,11 @@ int main() {
 	}
 
 	// create viewport
-	glViewport(0, 0, SCREEN_HEIGHT, SCREEN_HEIGHT);
+	glViewport(0, 0, SCREEN_WIDTH - SIDEBAR_WIDTH, SCREEN_HEIGHT);
 	glEnable(GL_DEPTH_TEST);
+
+	// resize callback
+	glfwSetFramebufferSizeCallback(window, resizeCallback);
 
 	// SETUP IMGUI
 	IMGUI_CHECKVERSION();
@@ -64,7 +70,7 @@ int main() {
 	ImGui::StyleColorsDark();
 
 	// camera
-	OrthoCamera camera(window, SCREEN_HEIGHT, SCREEN_HEIGHT);
+	OrthoCamera camera(window, SCREEN_WIDTH - SIDEBAR_WIDTH, SCREEN_HEIGHT);
 	sugarcube.camera = &camera;
 
 	sugarcube.initialize();
@@ -86,4 +92,10 @@ int main() {
 
 	glfwTerminate();
 	return 0;
+}
+
+void resizeCallback(GLFWwindow* window, int width, int height) {
+	sugarcube.resize(width, height);
+	sugarcube.camera->setSize(width - SIDEBAR_WIDTH, height);
+	glViewport(0, 0, width - SIDEBAR_WIDTH, height);
 }
