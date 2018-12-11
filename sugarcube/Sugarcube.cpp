@@ -10,9 +10,10 @@ Sugarcube::Sugarcube(float screenWidth, float screenHeight) :
 	playSpeed(2.5f),
 	bgColor(vec4(0.0f)),
 	shaderMode(0),
-	cameraRampScale(2.0f),
+	cameraRampScale(0.5f),
 	cameraRampOffset(0.5f),
 	originRampScale(13.86f),
+	originRampOffset(0.0f),
 	nearColor(vec4(1.0f)),
 	farColor(vec4(0.0f)),
 	innerColor(vec4(0.5f)),
@@ -57,6 +58,7 @@ void Sugarcube::drawScene() {
 	voxelShader.setFloat("cameraRampScale", cameraRampScale);
 	voxelShader.setFloat("cameraRampOffset", cameraRampOffset);
 	voxelShader.setFloat("originRampScale", originRampScale);
+	voxelShader.setFloat("originRampOffset", originRampOffset);
 	voxelShader.setFloat("rampMode", static_cast<float>(shaderMode));
 	
 	voxelShader.setMat4("view", camera->getViewMatrix());
@@ -163,10 +165,14 @@ void Sugarcube::drawGui() {
 			ImGui::Text("Origin Ramp");
 			ImGui::ColorEdit3("Inner Color", &innerColor.r);
 			ImGui::ColorEdit3("Outer Color", &outerColor.r);
+			ImGui::SliderFloat("Scale##originRamp", &originRampScale, 0.0f, 50.0f);
+			ImGui::SliderFloat("Offset##originRamp", &originRampOffset, -5.0f, 5.0f);
 
 			ImGui::Text("Camera Distance Ramp");
 			ImGui::ColorEdit3("Near Color", &nearColor.r);
 			ImGui::ColorEdit3("Far Color", &farColor.r);
+			ImGui::SliderFloat("Scale##cameraRamp", &cameraRampScale, 0.0f, 5.0f);
+			ImGui::SliderFloat("Offset##cameraRamp", &cameraRampOffset, -5.0f, 5.0f);
 		}
 
 		// camera tab

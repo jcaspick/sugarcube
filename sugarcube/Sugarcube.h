@@ -48,6 +48,7 @@ private:
 	vec4 innerColor;
 	vec4 outerColor;
 	float originRampScale;
+	float originRampOffset;
 	float cameraRampScale;
 	float cameraRampOffset;
 
