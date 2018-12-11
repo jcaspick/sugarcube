@@ -7,8 +7,9 @@ class PPM_Exporter {
 public:
 	PPM_Exporter(GLsizei width, GLsizei height);
 	void initialize();
-	void beginCapture();
+	void beginCapture(GLsizei width, GLsizei height);
 	void saveImage();
+	void resize(GLsizei width, GLsizei height);
 
 private:
 	GLsizei w, h;

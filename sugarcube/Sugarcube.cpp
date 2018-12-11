@@ -179,9 +179,13 @@ void Sugarcube::drawGui() {
 
 		// export tab
 		if (ImGui::CollapsingHeader("Export")) {
+			static ivec2 imageSize(1024, 1024);
+
+			ImGui::InputInt2("Image Size", &imageSize.x);
+
 			if (ImGui::Button("Export Image")) {
-				imageExporter.beginCapture();
-				camera->setSize(1024, 1024);
+				imageExporter.beginCapture(imageSize.x, imageSize.y);
+				camera->setSize(imageSize.x, imageSize.y);
 				drawScene();
 				imageExporter.saveImage();
 				camera->setSize(screen.y, screen.y);

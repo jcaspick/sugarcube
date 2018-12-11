@@ -34,7 +34,9 @@ void PPM_Exporter::initialize() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void PPM_Exporter::beginCapture() {
+void PPM_Exporter::beginCapture(GLsizei width, GLsizei height) {
+	if (width != w || height != h) resize(width, height);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, w, h);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -57,4 +59,17 @@ void PPM_Exporter::saveImage() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, oldWidth, oldHeight);
+}
+
+void PPM_Exporter::resize(GLsizei width, GLsizei height) {
+	glDeleteFramebuffers(1, &fbo);
+	glDeleteTextures(1, &color);
+	glDeleteTextures(1, &depthStencil);
+
+	w = width;
+	h = height;
+
+	initialize();
+
+	std::cout << oldWidth << " x " << oldHeight << std::endl;
 }
