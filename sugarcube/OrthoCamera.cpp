@@ -26,7 +26,7 @@ mat4 OrthoCamera::getViewMatrix() {
 	return view;
 }
 
-mat4 OrthoCamera::getProjectionMatrix() {
+mat4 OrthoCamera::getProjectionMatrix(bool flipY) {
 	mat4 projection = glm::ortho(
 		-0.5f * screenWidth,
 		0.5f * screenWidth,
@@ -36,6 +36,7 @@ mat4 OrthoCamera::getProjectionMatrix() {
 	);
 	projection = glm::scale(projection, 
 		vec3(screenHeight * zoom, screenHeight * zoom, 1));
+	if (flipY) projection = glm::scale(projection, vec3(1, -1, 1));
 	return projection;
 }
 

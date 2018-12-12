@@ -57,7 +57,7 @@ void Sugarcube::resize(float width, float height) {
 	screen = { width, height };
 }
 
-void Sugarcube::drawScene() {
+void Sugarcube::drawScene(bool flipY) {
 	voxelShader.setVec4("nearColor", nearColor);
 	voxelShader.setVec4("farColor", farColor);
 	voxelShader.setVec4("innerColor", innerColor);
@@ -70,7 +70,7 @@ void Sugarcube::drawScene() {
 	voxelShader.setInt("smoothLight", smoothLight);
 	
 	voxelShader.setMat4("view", camera->getViewMatrix());
-	voxelShader.setMat4("projection", camera->getProjectionMatrix());
+	voxelShader.setMat4("projection", camera->getProjectionMatrix(flipY));
 
 	simulation.draw();
 }
@@ -213,7 +213,7 @@ void Sugarcube::drawGui() {
 				if (result == NFD_OKAY) {
 					imageExporter.beginCapture(imageSize.x, imageSize.y);
 					camera->setSize(imageSize.x, imageSize.y);
-					drawScene();
+					drawScene(true);
 					imageExporter.saveImage(savePath);
 					camera->setSize(screen.x - sidebarWidth, screen.y);
 				}

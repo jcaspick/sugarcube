@@ -15,7 +15,7 @@ public:
 	void handleMouse();
 
 	mat4 getViewMatrix();
-	mat4 getProjectionMatrix();
+	mat4 getProjectionMatrix(bool flipY = false);
 
 	void setSize(float w, float h);
 	void setAzimuth(float az);

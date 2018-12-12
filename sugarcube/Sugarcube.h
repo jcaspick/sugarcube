@@ -33,7 +33,7 @@ public:
 	OrthoCamera* camera;
 
 private:
-	void drawScene();
+	void drawScene(bool flipY = false);
 	void drawGui();
 
 	vec2 screen;
