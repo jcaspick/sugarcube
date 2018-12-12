@@ -44,13 +44,19 @@ void PPM_Exporter::beginCapture(GLsizei width, GLsizei height) {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void PPM_Exporter::saveImage() {
+void PPM_Exporter::saveImage(const char* path) {
 	unsigned char* image = (unsigned char*)malloc(sizeof(unsigned char) * 3 * w * h);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
 
 	std::ofstream ifile;
-	ifile.open("imageExport.ppm");
+	ifile.open(path);
+
+	if (!ifile.is_open()) {
+		std::cout << "Error: could not write file to path\n" << path << std::endl;
+		return;
+	}
+
 	ifile << "P6 " << std::to_string(w) << " " << std::to_string(h) << " 255 ";
 	ifile.write((char*)&image[0], 3 * w * h);
 	ifile.close();

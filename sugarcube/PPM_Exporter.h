@@ -8,7 +8,7 @@ public:
 	PPM_Exporter(GLsizei width, GLsizei height);
 	void initialize();
 	void beginCapture(GLsizei width, GLsizei height);
-	void saveImage();
+	void saveImage(const char* path);
 	void resize(GLsizei width, GLsizei height);
 
 private:

@@ -1,5 +1,6 @@
 #include "Sugarcube.h"
 #include <iostream>
+#include <nativefiledialog\nfd.h>
 
 Sugarcube::Sugarcube(float screenWidth, float screenHeight, float sidebarWidth) :
 	screen(screenWidth, screenHeight),
@@ -206,11 +207,19 @@ void Sugarcube::drawGui() {
 			ImGui::InputInt2("Image Size", &imageSize.x);
 
 			if (ImGui::Button("Export Image")) {
-				imageExporter.beginCapture(imageSize.x, imageSize.y);
-				camera->setSize(imageSize.x, imageSize.y);
-				drawScene();
-				imageExporter.saveImage();
-				camera->setSize(screen.x - sidebarWidth, screen.y);
+				char* savePath = NULL;
+				nfdresult_t result = NFD_SaveDialog("PPM", NULL, &savePath);
+
+				if (result == NFD_OKAY) {
+					imageExporter.beginCapture(imageSize.x, imageSize.y);
+					camera->setSize(imageSize.x, imageSize.y);
+					drawScene();
+					imageExporter.saveImage(savePath);
+					camera->setSize(screen.x - sidebarWidth, screen.y);
+				}
+				else if (result != NFD_CANCEL) {
+					std::cout << "Error (nfd): " << NFD_GetError() << std::endl;
+				}
 			}
 			if (ImGui::Button("Export OBJ")) {
 				objExporter.load(simulation.cells, simulation.getSize());
