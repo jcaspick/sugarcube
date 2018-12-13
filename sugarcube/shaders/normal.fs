@@ -8,11 +8,15 @@ in float vDistance;
 uniform vec4 xColor;
 uniform vec4 yColor;
 uniform vec4 zColor;
+uniform vec4 ambientColor;
 uniform vec4 lightColor;
-float normalMix;
-float lightMix;
+uniform vec3 lightDir;
+uniform float normalMix;
+uniform float lightMix;
 
 void main() {
 	vec4 normalColors = xColor * abs(vNormal.x) + yColor * abs(vNormal.y) + zColor * abs(vNormal.z);
-	fragColor = normalColors;
+	vec4 lit = max(dot(normalize(-lightDir), vNormal), 0) * lightColor;
+
+	fragColor = mix(ambientColor, normalColors, normalMix) + lit * lightMix;
 }

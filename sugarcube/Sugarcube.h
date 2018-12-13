@@ -69,6 +69,9 @@ private:
 	vec4 yColor;
 	vec4 zColor;
 	vec4 lightColor;
+	vec4 ambientColor;
+	float lightAzimuth;
+	float lightAltitude;
 	float normalMix;
 	float lightMix;
 

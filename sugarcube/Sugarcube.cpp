@@ -26,8 +26,10 @@ Sugarcube::Sugarcube(float screenWidth, float screenHeight, float sidebarWidth) 
 	yColor(vec4(0, 1, 0, 1)),
 	zColor(vec4(0, 0, 1, 1)),
 	lightColor(vec4(1, 1, 1, 1)),
+	lightAzimuth(70.0f),
+	lightAltitude(60.0f),
 	normalMix(1.0f),
-	lightMix(0.0f),
+	lightMix(0.5f),
 	playing(false)
 {}
 
@@ -86,6 +88,13 @@ void Sugarcube::drawScene(bool flipY) {
 		normalShader.setVec4("yColor", yColor);
 		normalShader.setVec4("zColor", zColor);
 		normalShader.setVec4("lightColor", lightColor);
+		normalShader.setVec4("ambientColor", ambientColor);
+
+		mat4 lightRotation = glm::rotate(mat4(1), glm::radians(lightAzimuth), vec3(0, 1, 0));
+		lightRotation = glm::rotate(lightRotation, glm::radians(lightAltitude), vec3(1, 0, 0));
+		vec3 lightDir = lightRotation * vec4(0, 0, 1, 1);
+
+		normalShader.setVec3("lightDir", lightDir);
 		normalShader.setFloat("normalMix", normalMix);
 		normalShader.setFloat("lightMix", lightMix);
 	}
@@ -224,9 +233,16 @@ void Sugarcube::drawGui() {
 			}
 			// normal shader settings
 			if (shader == ShaderType::Normal) {
-				ImGui::ColorEdit3("X color", &xColor.r);
-				ImGui::ColorEdit3("Y color", &yColor.r);
-				ImGui::ColorEdit3("Z color", &zColor.r);
+				ImGui::ColorEdit3("X Color", &xColor.r);
+				ImGui::ColorEdit3("Y Color", &yColor.r);
+				ImGui::ColorEdit3("Z Color", &zColor.r);
+				ImGui::ColorEdit3("Ambient Color", &ambientColor.r);
+				ImGui::ColorEdit3("Light Color", &lightColor.r);
+				ImGui::Text("Light Position");
+				ImGui::SliderFloat("Azimuth##light", &lightAzimuth, -360, 360);
+				ImGui::SliderFloat("Altitude##light", &lightAltitude, -90.0f, 90.0f);
+				ImGui::SliderFloat("Normal Mix", &normalMix, 0, 1);
+				ImGui::SliderFloat("Light Intensity", &lightMix, 0, 1);
 			}
 		}
 
