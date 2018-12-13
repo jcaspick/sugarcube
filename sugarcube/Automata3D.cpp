@@ -188,34 +188,56 @@ void Automata3D::initRenderData() {
 
 	glBindVertexArray(vao);
 
-	Vertex cubeVertices[8] = {
-		Vertex(-0.5f, -0.5f, -0.5f, -0.623f, -0.623f, -0.623f),
-		Vertex( 0.5f, -0.5f, -0.5f,  0.623f, -0.623f, -0.623f),
-		Vertex(-0.5f, -0.5f,  0.5f, -0.623f, -0.623f,  0.623f),
-		Vertex( 0.5f, -0.5f,  0.5f,  0.623f, -0.623f,  0.623f),
-		Vertex(-0.5f,  0.5f, -0.5f, -0.623f,  0.623f, -0.623f),
-		Vertex( 0.5f,  0.5f, -0.5f,  0.623f,  0.623f, -0.623f),
-		Vertex(-0.5f,  0.5f,  0.5f, -0.623f,  0.623f,  0.623f),
-		Vertex( 0.5f,  0.5f,  0.5f,  0.623f,  0.623f,  0.623f)
+	Vertex cubeVertices[24] = {
+		// -Y
+		Vertex(-0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f),
+		Vertex( 0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f),
+		Vertex(-0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f),
+		Vertex( 0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f),
+		// -Z
+		Vertex( 0.5f, -0.5f, -0.5f,     0.0f, 0.0f, -1.0f),
+		Vertex(-0.5f, -0.5f, -0.5f,     0.0f, 0.0f, -1.0f),
+		Vertex( 0.5f,  0.5f, -0.5f,     0.0f, 0.0f, -1.0f),
+		Vertex(-0.5f,  0.5f, -0.5f,     0.0f, 0.0f, -1.0f),
+		// -X
+		Vertex(-0.5f, -0.5f, -0.5f,     -1.0f, 0.0f, 0.0f),
+		Vertex(-0.5f, -0.5f,  0.5f,     -1.0f, 0.0f, 0.0f),
+		Vertex(-0.5f,  0.5f, -0.5f,     -1.0f, 0.0f, 0.0f),
+		Vertex(-0.5f,  0.5f,  0.5f,     -1.0f, 0.0f, 0.0f),
+		// +Z
+		Vertex(-0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f),
+		Vertex( 0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f),
+		Vertex(-0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f),
+		Vertex( 0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f),
+		// +X
+		Vertex( 0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f),
+		Vertex( 0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f),
+		Vertex( 0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f),
+		Vertex( 0.5f,  0.5f, -0.5f,     1.0f, 0.0f, 0.0f),
+		// +Y
+		Vertex(-0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f),
+		Vertex( 0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f),
+		Vertex(-0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f),
+		Vertex( 0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f)
 	};
 
 	GLuint cubeIndices[36] = {
 		0, 1, 2,
 		2, 1, 3,
-		2, 3, 6,
-		6, 3, 7,
-		3, 1, 7,
-		7, 1, 5,
-		1, 0, 5,
-		5, 0, 4,
-		0, 2, 4,
-		4, 2, 6,
-		6, 7, 4,
-		4, 7, 5
+		4, 5, 6,
+		6, 5, 7,
+		8, 9, 10,
+		10, 9, 11,
+		12, 13, 14,
+		14, 13, 15,
+		16, 17, 18,
+		18, 17, 19,
+		20, 21, 22,
+		22, 21, 23
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(Vertex), &cubeVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(Vertex), &cubeVertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
