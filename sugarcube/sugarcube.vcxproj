@@ -111,8 +111,7 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;nfd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)shaders\voxel1.vs $(OutDir)shaders\
-xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
+      <Command>xcopy /y $(ProjectDir)shaders $(OutDir)shaders /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,8 +160,9 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
     <ClInclude Include="Sugarcube.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\voxel1.fs" />
-    <None Include="shaders\voxel1.vs" />
+    <None Include="shaders\normal.fs" />
+    <None Include="shaders\ramp.fs" />
+    <None Include="shaders\voxel.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

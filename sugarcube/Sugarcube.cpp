@@ -11,7 +11,8 @@ Sugarcube::Sugarcube(float screenWidth, float screenHeight, float sidebarWidth) 
 	elapsed(0),
 	playSpeed(2.5f),
 	bgColor(vec4(0.0f)),
-	shaderMode(0),
+	shader(ShaderType::Ramp),
+	rampMode(0),
 	smoothLight(1),
 	cameraRampScale(0.5f),
 	cameraRampOffset(0.5f),
@@ -21,13 +22,20 @@ Sugarcube::Sugarcube(float screenWidth, float screenHeight, float sidebarWidth) 
 	farColor(vec4(0.0f)),
 	innerColor(vec4(0.5f)),
 	outerColor(vec4(1.0f)),
+	xColor(vec4(1, 0, 0, 1)),
+	yColor(vec4(0, 1, 0, 1)),
+	zColor(vec4(0, 0, 1, 1)),
+	lightColor(vec4(1, 1, 1, 1)),
+	normalMix(1.0f),
+	lightMix(0.0f),
 	playing(false)
 {}
 
 void Sugarcube::initialize() {
-	// load shader
-	voxelShader.loadFromFile("shaders/voxel1.vs", "shaders/voxel1.fs");
-	voxelShader.use();
+	// load shaders
+	normalShader.loadFromFile("shaders/voxel.vs", "shaders/normal.fs");
+	rampShader.loadFromFile("shaders/voxel.vs", "shaders/ramp.fs");
+	rampShader.use();
 
 	// initialize simulation
 	simulation.initRenderData();
@@ -58,19 +66,35 @@ void Sugarcube::resize(float width, float height) {
 }
 
 void Sugarcube::drawScene(bool flipY) {
-	voxelShader.setVec4("nearColor", nearColor);
-	voxelShader.setVec4("farColor", farColor);
-	voxelShader.setVec4("innerColor", innerColor);
-	voxelShader.setVec4("outerColor", outerColor);
-	voxelShader.setFloat("cameraRampScale", cameraRampScale);
-	voxelShader.setFloat("cameraRampOffset", cameraRampOffset);
-	voxelShader.setFloat("originRampScale", originRampScale);
-	voxelShader.setFloat("originRampOffset", originRampOffset);
-	voxelShader.setFloat("rampMode", static_cast<float>(shaderMode));
-	voxelShader.setInt("smoothLight", smoothLight);
+	// set ramp shader uniforms
+	if (shader == ShaderType::Ramp) {
+		rampShader.setVec4("nearColor", nearColor);
+		rampShader.setVec4("farColor", farColor);
+		rampShader.setVec4("innerColor", innerColor);
+		rampShader.setVec4("outerColor", outerColor);
+		rampShader.setFloat("cameraRampScale", cameraRampScale);
+		rampShader.setFloat("cameraRampOffset", cameraRampOffset);
+		rampShader.setFloat("originRampScale", originRampScale);
+		rampShader.setFloat("originRampOffset", originRampOffset);
+		rampShader.setFloat("rampMode", static_cast<float>(rampMode));
+		rampShader.setInt("smoothLight", smoothLight);
+	}
+
+	// set normal shader uniforms
+	if (shader == ShaderType::Normal) {
+		normalShader.setVec4("xColor", xColor);
+		normalShader.setVec4("yColor", yColor);
+		normalShader.setVec4("zColor", zColor);
+		normalShader.setVec4("lightColor", lightColor);
+		normalShader.setFloat("normalMix", normalMix);
+		normalShader.setFloat("lightMix", lightMix);
+	}
 	
-	voxelShader.setMat4("view", camera->getViewMatrix());
-	voxelShader.setMat4("projection", camera->getProjectionMatrix(flipY));
+	// set common uniforms
+	rampShader.setMat4("view", camera->getViewMatrix());
+	rampShader.setMat4("projection", camera->getProjectionMatrix(flipY));
+	normalShader.setMat4("view", camera->getViewMatrix());
+	normalShader.setMat4("projection", camera->getProjectionMatrix(flipY));
 
 	simulation.draw();
 }
@@ -173,22 +197,36 @@ void Sugarcube::drawGui() {
 		if (ImGui::CollapsingHeader("Shader")) {
 			ImGui::ColorEdit3("BG Color", &bgColor.r);
 
-			ImGui::Combo("Shader Mode", &shaderMode, "Distance from origin\0Distance from camera");
-			ImGui::Combo("Ramp Mode", &smoothLight, "Block distance\0Vertex distance");
-
-			if (shaderMode == 0) {
-				ImGui::Text("Origin Ramp");
-				ImGui::ColorEdit3("Inner Color", &innerColor.r);
-				ImGui::ColorEdit3("Outer Color", &outerColor.r);
-				ImGui::SliderFloat("Scale##originRamp", &originRampScale, 0.0f, 50.0f);
-				ImGui::SliderFloat("Offset##originRamp", &originRampOffset, -5.0f, 5.0f);
+			if (ImGui::Combo("Shader##type", (int*)&shader, "Distance Ramp\0Normal / Light")) {
+				if (shader == ShaderType::Ramp) rampShader.use();
+				else if (shader == ShaderType::Normal) normalShader.use();
 			}
-			if (shaderMode == 1) {
-				ImGui::Text("Camera Distance Ramp");
-				ImGui::ColorEdit3("Near Color", &nearColor.r);
-				ImGui::ColorEdit3("Far Color", &farColor.r);
-				ImGui::SliderFloat("Scale##cameraRamp", &cameraRampScale, 0.0f, 5.0f);
-				ImGui::SliderFloat("Offset##cameraRamp", &cameraRampOffset, -5.0f, 5.0f);
+
+			// ramp shader settings
+			if (shader == ShaderType::Ramp) {
+				ImGui::Combo("Ramp Type", &rampMode, "Distance from origin\0Distance from camera");
+				ImGui::Combo("Ramp Mode", &smoothLight, "Block distance\0Vertex distance");
+
+				if (rampMode == 0) {
+					ImGui::Text("Origin Ramp");
+					ImGui::ColorEdit3("Inner Color", &innerColor.r);
+					ImGui::ColorEdit3("Outer Color", &outerColor.r);
+					ImGui::SliderFloat("Scale##originRamp", &originRampScale, 0.0f, 50.0f);
+					ImGui::SliderFloat("Offset##originRamp", &originRampOffset, -5.0f, 5.0f);
+				}
+				if (rampMode == 1) {
+					ImGui::Text("Camera Distance Ramp");
+					ImGui::ColorEdit3("Near Color", &nearColor.r);
+					ImGui::ColorEdit3("Far Color", &farColor.r);
+					ImGui::SliderFloat("Scale##cameraRamp", &cameraRampScale, 0.0f, 5.0f);
+					ImGui::SliderFloat("Offset##cameraRamp", &cameraRampOffset, -5.0f, 5.0f);
+				}
+			}
+			// normal shader settings
+			if (shader == ShaderType::Normal) {
+				ImGui::ColorEdit3("X color", &xColor.r);
+				ImGui::ColorEdit3("Y color", &yColor.r);
+				ImGui::ColorEdit3("Z color", &zColor.r);
 			}
 		}
 

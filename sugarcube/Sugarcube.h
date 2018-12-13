@@ -21,6 +21,11 @@ using ivec3 = glm::ivec3;
 using vec4 = glm::vec4;
 using mat4 = glm::mat4;
 
+enum class ShaderType {
+	Ramp,
+	Normal
+};
+
 class Sugarcube {
 
 public:
@@ -43,8 +48,13 @@ private:
 	float playSpeed;
 	bool playing;
 
+	ShaderType shader;
+	Shader rampShader;
+	Shader normalShader;
+
 	vec4 bgColor;
-	int shaderMode;
+
+	int rampMode;
 	int smoothLight;
 	vec4 nearColor;
 	vec4 farColor;
@@ -55,7 +65,13 @@ private:
 	float cameraRampScale;
 	float cameraRampOffset;
 
-	Shader voxelShader;
+	vec4 xColor;
+	vec4 yColor;
+	vec4 zColor;
+	vec4 lightColor;
+	float normalMix;
+	float lightMix;
+
 	Automata3D simulation;
 	ObjExporter objExporter;
 	PPM_Exporter imageExporter;

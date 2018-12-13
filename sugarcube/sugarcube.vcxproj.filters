@@ -101,10 +101,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\voxel1.fs">
+    <None Include="shaders\ramp.fs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="shaders\voxel1.vs">
+    <None Include="shaders\voxel.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\normal.fs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
