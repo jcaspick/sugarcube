@@ -139,12 +139,14 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjExporter.cpp" />
     <ClCompile Include="OrthoCamera.cpp" />
+    <ClCompile Include="PerspCamera.cpp" />
     <ClCompile Include="PPM_Exporter.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Sugarcube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automata3D.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="include\imgui\imconfig.h" />
     <ClInclude Include="include\imgui\imgui.h" />
     <ClInclude Include="include\imgui\imgui_impl_glfw.h" />
@@ -155,6 +157,7 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="ObjExporter.h" />
     <ClInclude Include="OrthoCamera.h" />
+    <ClInclude Include="PerspCamera.h" />
     <ClInclude Include="PPM_Exporter.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sugarcube.h" />

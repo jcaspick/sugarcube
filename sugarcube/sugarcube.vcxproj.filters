@@ -55,6 +55,9 @@
     <ClCompile Include="Sugarcube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PerspCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ObjExporter.h">
@@ -97,6 +100,12 @@
       <Filter>Imgui</Filter>
     </ClInclude>
     <ClInclude Include="Sugarcube.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PerspCamera.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

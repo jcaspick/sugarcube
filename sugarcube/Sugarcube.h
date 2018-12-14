@@ -9,7 +9,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "Shader.h"
-#include "OrthoCamera.h"
+#include "Camera.h"
 #include "Automata3D.h"
 #include "ObjExporter.h"
 #include "PPM_Exporter.h"
@@ -35,7 +35,7 @@ public:
 	void draw();
 	void resize(float width, float height);
 
-	OrthoCamera* camera;
+	Camera* camera;
 
 private:
 	void drawScene(bool flipY = false);
