@@ -42,8 +42,16 @@ void ImageExporter::buildFramebuffer() {
 }
 
 void ImageExporter::beginCapture(GLsizei width, GLsizei height) {
+	// resize framebuffer to desired output size
 	if (width != w || height != h) resize(width, height);
 
+	// save previous glviewport size to restore afterwards
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	oldWidth = viewport[2];
+	oldHeight = viewport[3];
+
+	// prepare framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, w, h);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -78,4 +86,5 @@ void ImageExporter::saveImage(const char* path, ImageFormats format) {
 void ImageExporter::resize(GLsizei width, GLsizei height) {
 	w = width;
 	h = height;
+	buildFramebuffer();
 }
