@@ -163,13 +163,17 @@ void Sugarcube::drawGui() {
 				ImGui::InputInt3("Box Size", &boxSize.x);
 			}
 			else if (startShape == 1) {
+				ImGui::PushItemWidth(150);
 				ImGui::InputInt("Cross Thickness", &crossThickness);
+				ImGui::PopItemWidth();
 				ImGui::Checkbox("Omit X", &omitX);
 				ImGui::Checkbox("Omit Y", &omitY);
 				ImGui::Checkbox("Omit Z", &omitZ);
 			}
 			else if (startShape == 2) {
+				ImGui::PushItemWidth(150);
 				ImGui::InputInt("Corner Thickness", &cornerThickness);
+				ImGui::PopItemWidth();
 			}
 			else if (startShape == 3) {
 				ImGui::InputInt3("Area Size", &noiseAreaSize.x);
@@ -182,7 +186,7 @@ void Sugarcube::drawGui() {
 
 			ImGui::Text("Common Parameters");
 			static ivec3 simulationSize = ivec3(16);
-			ImGui::InputInt3("Simulation Size", &simulationSize.x);
+			ImGui::InputInt3("Max Size", &simulationSize.x);
 			ImGui::SliderInt("eL", &eL, 0, 26);
 			ImGui::SliderInt("eU", &eU, 0, 26);
 			ImGui::SliderInt("fL", &fL, 0, 26);
