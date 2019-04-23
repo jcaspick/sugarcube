@@ -264,15 +264,40 @@ void Sugarcube::drawGui() {
 
 			ImGui::InputInt2("Image Size", &imageSize.x);
 
+			const char* formats[] = {
+				"png",
+				"bmp",
+				"tga",
+				"jpg"
+			};
+			static const char* currentItem = "png";
+
+			if (ImGui::BeginCombo("Image Format", currentItem)) {
+				for (int i = 0; i < 4; i++) {
+					bool isSelected = (currentItem == formats[i]);
+					if (ImGui::Selectable(formats[i], isSelected))
+						currentItem = formats[i];
+					if (isSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			ImageFormats saveFormat;
+			if (currentItem == "png") saveFormat = ImageFormats::PNG;
+			else if (currentItem == "bmp") saveFormat = ImageFormats::BMP;
+			else if (currentItem == "tga") saveFormat = ImageFormats::TGA;
+			else if (currentItem == "jpg") saveFormat = ImageFormats::JPEG;
+
 			if (ImGui::Button("Export Image")) {
 				char* savePath = NULL;
-				nfdresult_t result = NFD_SaveDialog("PPM", NULL, &savePath);
+				nfdresult_t result = NFD_SaveDialog("", NULL, &savePath);
 
 				if (result == NFD_OKAY) {
 					imageExporter.beginCapture(imageSize.x, imageSize.y);
 					camera->setSize(imageSize.x, imageSize.y);
 					drawScene(true);
-					imageExporter.saveImage(savePath);
+					imageExporter.saveImage(savePath, saveFormat);
 					camera->setSize(screen.x - sidebarWidth, screen.y);
 				}
 				else if (result != NFD_CANCEL) {

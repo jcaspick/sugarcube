@@ -13,6 +13,7 @@
 #include "Automata3D.h"
 #include "ObjExporter.h"
 #include "PPM_Exporter.h"
+#include "ImageExporter.h"
 
 using vec2 = glm::vec2;
 using ivec2 = glm::ivec2;
@@ -77,5 +78,5 @@ private:
 
 	Automata3D simulation;
 	ObjExporter objExporter;
-	PPM_Exporter imageExporter;
+	ImageExporter imageExporter;
 };

@@ -130,6 +130,7 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
   <ItemGroup>
     <ClCompile Include="Automata3D.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="ImageExporter.cpp" />
     <ClCompile Include="include\imgui\imgui.cpp" />
     <ClCompile Include="include\imgui\imgui_demo.cpp" />
     <ClCompile Include="include\imgui\imgui_draw.cpp" />
@@ -147,6 +148,7 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
   <ItemGroup>
     <ClInclude Include="Automata3D.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ImageExporter.h" />
     <ClInclude Include="include\imgui\imconfig.h" />
     <ClInclude Include="include\imgui\imgui.h" />
     <ClInclude Include="include\imgui\imgui_impl_glfw.h" />
@@ -160,6 +162,7 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
     <ClInclude Include="PerspCamera.h" />
     <ClInclude Include="PPM_Exporter.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Sugarcube.h" />
   </ItemGroup>
   <ItemGroup>
