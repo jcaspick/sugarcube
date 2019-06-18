@@ -164,6 +164,7 @@ xcopy /y $(ProjectDir)shaders\voxel1.fs $(OutDir)shaders\</Command>
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Sugarcube.h" />
+    <ClInclude Include="Tooltips.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\normal.fs" />

@@ -1,4 +1,5 @@
 #include "Sugarcube.h"
+#include "Tooltips.h"
 #include <iostream>
 #include <nativefiledialog\nfd.h>
 
@@ -108,6 +109,19 @@ void Sugarcube::drawScene(bool flipY) {
 	simulation.draw();
 }
 
+static void HelpMarker(const char* desc)
+{
+	ImGui::TextDisabled("(?)");
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+
 void Sugarcube::drawGui() {
 	// start imgui frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -143,14 +157,14 @@ void Sugarcube::drawGui() {
 	{
 		// simulation tab
 		if (ImGui::CollapsingHeader("Simulation")) {
-			ImGui::Text("Starting Shape");
+			ImGui::Text("Starting shape");
 			static int startShape = 0;
 			ImGui::RadioButton("Box", &startShape, 0);
 			ImGui::RadioButton("Cross", &startShape, 1);
 			ImGui::RadioButton("Corners", &startShape, 2);
 			ImGui::RadioButton("Noise", &startShape, 3);
 
-			ImGui::Text("Shape Parameters");
+			ImGui::Text("Shape specific parameters");
 			static ivec3 boxSize = ivec3(2);
 			static int crossThickness = 2;
 			static bool omitX = false;
@@ -160,11 +174,11 @@ void Sugarcube::drawGui() {
 			static ivec3 noiseAreaSize = ivec3(8);
 
 			if (startShape == 0) {
-				ImGui::InputInt3("Box Size", &boxSize.x);
+				ImGui::InputInt3("Box size", &boxSize.x);
 			}
 			else if (startShape == 1) {
 				ImGui::PushItemWidth(150);
-				ImGui::InputInt("Cross Thickness", &crossThickness);
+				ImGui::InputInt("Cross thickness", &crossThickness);
 				ImGui::PopItemWidth();
 				ImGui::Checkbox("Omit X", &omitX);
 				ImGui::Checkbox("Omit Y", &omitY);
@@ -172,11 +186,11 @@ void Sugarcube::drawGui() {
 			}
 			else if (startShape == 2) {
 				ImGui::PushItemWidth(150);
-				ImGui::InputInt("Corner Thickness", &cornerThickness);
+				ImGui::InputInt("Corner thickness", &cornerThickness);
 				ImGui::PopItemWidth();
 			}
 			else if (startShape == 3) {
-				ImGui::InputInt3("Area Size", &noiseAreaSize.x);
+				ImGui::InputInt3("Area size", &noiseAreaSize.x);
 			}
 
 			static int eL = 4;
@@ -184,10 +198,14 @@ void Sugarcube::drawGui() {
 			static int fL = 2;
 			static int fU = 6;
 
-			ImGui::Text("Common Parameters");
+			ImGui::Separator();
+
+			ImGui::Text("Common parameters");
 			static ivec3 simulationSize = ivec3(16);
-			ImGui::InputInt3("Max Size", &simulationSize.x);
+			ImGui::InputInt3("Max size", &simulationSize.x);
+			ImGui::SameLine(); HelpMarker(Tooltip::maxSize.c_str());
 			ImGui::SliderInt("eL", &eL, 0, 26);
+			ImGui::SameLine(); HelpMarker(Tooltip::rules.c_str());
 			ImGui::SliderInt("eU", &eU, 0, 26);
 			ImGui::SliderInt("fL", &fL, 0, 26);
 			ImGui::SliderInt("fU", &fU, 0, 26);
@@ -210,49 +228,64 @@ void Sugarcube::drawGui() {
 		if (ImGui::CollapsingHeader("Shader")) {
 			ImGui::ColorEdit3("BG Color", &bgColor.r);
 
-			if (ImGui::Combo("Shader##type", (int*)&shader, "Distance Ramp\0Normal / Light")) {
+			if (ImGui::Combo("Shader##type", (int*)&shader, "Distance ramp\0Normal / Light")) {
 				if (shader == ShaderType::Ramp) rampShader.use();
 				else if (shader == ShaderType::Normal) normalShader.use();
 			}
+			ImGui::SameLine(); HelpMarker(Tooltip::shaders.c_str());
+			ImGui::Separator();
 
 			// ramp shader settings
 			if (shader == ShaderType::Ramp) {
-				ImGui::Combo("Ramp Type", &rampMode, "Distance from origin\0Distance from camera");
-				ImGui::Combo("Ramp Mode", &smoothLight, "Block distance\0Vertex distance");
+				ImGui::Text("Ramp settings");
+				ImGui::Combo("Ramp type", &rampMode, "Distance from origin\0Distance from camera");
+				ImGui::Combo("Shading", &smoothLight, "Blocky\0Smooth");
+				ImGui::Separator();
 
+				ImGui::Text("Colors");
 				if (rampMode == 0) {
-					ImGui::Text("Origin Ramp");
-					ImGui::ColorEdit3("Inner Color", &innerColor.r);
-					ImGui::ColorEdit3("Outer Color", &outerColor.r);
+					ImGui::ColorEdit3("Inner color", &innerColor.r);
+					ImGui::ColorEdit3("Outer color", &outerColor.r);
+					ImGui::Separator();
+
+					ImGui::Text("Mapping");
 					ImGui::SliderFloat("Scale##originRamp", &originRampScale, 0.0f, 50.0f);
 					ImGui::SliderFloat("Offset##originRamp", &originRampOffset, -5.0f, 5.0f);
 				}
 				if (rampMode == 1) {
-					ImGui::Text("Camera Distance Ramp");
-					ImGui::ColorEdit3("Near Color", &nearColor.r);
-					ImGui::ColorEdit3("Far Color", &farColor.r);
+					ImGui::ColorEdit3("Near color", &nearColor.r);
+					ImGui::ColorEdit3("Far color", &farColor.r);
+					ImGui::Separator();
+
+					ImGui::Text("Mapping");
 					ImGui::SliderFloat("Scale##cameraRamp", &cameraRampScale, 0.0f, 5.0f);
 					ImGui::SliderFloat("Offset##cameraRamp", &cameraRampOffset, -5.0f, 5.0f);
 				}
 			}
 			// normal shader settings
 			if (shader == ShaderType::Normal) {
-				ImGui::ColorEdit3("X Color", &xColor.r);
-				ImGui::ColorEdit3("Y Color", &yColor.r);
-				ImGui::ColorEdit3("Z Color", &zColor.r);
-				ImGui::ColorEdit3("Ambient Color", &ambientColor.r);
-				ImGui::ColorEdit3("Light Color", &lightColor.r);
-				ImGui::Text("Light Position");
+				ImGui::Text("Colors");
+				ImGui::ColorEdit3("X color", &xColor.r);
+				ImGui::ColorEdit3("Y color", &yColor.r);
+				ImGui::ColorEdit3("Z color", &zColor.r);
+				ImGui::ColorEdit3("Ambient color", &ambientColor.r);
+				ImGui::ColorEdit3("Light color", &lightColor.r);
+
+				ImGui::Separator();
+				ImGui::Text("Light direction");
 				ImGui::SliderFloat("Azimuth##light", &lightAzimuth, -360, 360);
 				ImGui::SliderFloat("Altitude##light", &lightAltitude, -90.0f, 90.0f);
-				ImGui::SliderFloat("Normal Mix", &normalMix, 0, 1);
-				ImGui::SliderFloat("Light Intensity", &lightMix, 0, 1);
+				ImGui::Separator();
+
+				ImGui::Text("Mix");
+				ImGui::SliderFloat("Normal mix", &normalMix, 0, 1);
+				ImGui::SliderFloat("Light mix", &lightMix, 0, 1);
 			}
 		}
 
 		// camera tab
 		if (ImGui::CollapsingHeader("Camera")) {
-			if (ImGui::Button("Isometric View")) {
+			if (ImGui::Button("Isometric view")) {
 				camera->setAzimuth(45);
 				camera->setAltitude(35.264);
 			}
@@ -262,7 +295,7 @@ void Sugarcube::drawGui() {
 		if (ImGui::CollapsingHeader("Export")) {
 			static ivec2 imageSize(1024, 1024);
 
-			ImGui::InputInt2("Image Size", &imageSize.x);
+			ImGui::InputInt2("Image size", &imageSize.x);
 
 			const char* formats[] = {
 				"png",
@@ -272,7 +305,7 @@ void Sugarcube::drawGui() {
 			};
 			static const char* currentItem = "png";
 
-			if (ImGui::BeginCombo("Image Format", currentItem)) {
+			if (ImGui::BeginCombo("Image format", currentItem)) {
 				for (int i = 0; i < 4; i++) {
 					bool isSelected = (currentItem == formats[i]);
 					if (ImGui::Selectable(formats[i], isSelected))
@@ -289,7 +322,7 @@ void Sugarcube::drawGui() {
 			else if (currentItem == "tga") saveFormat = ImageFormats::TGA;
 			else if (currentItem == "jpg") saveFormat = ImageFormats::JPEG;
 
-			if (ImGui::Button("Export Image")) {
+			if (ImGui::Button("Export image")) {
 				char* savePath = NULL;
 				nfdresult_t result = NFD_SaveDialog("", NULL, &savePath);
 
